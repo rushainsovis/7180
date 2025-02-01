@@ -17,48 +17,46 @@ type AccordionItem = {
 type AccordionProps = {
     items: AccordionItem[];
     allowMultipleOpen?: boolean;
-    initiallyCollapsed?: Record<string, boolean>; // Object with id as key and boolean as value
+    initiallyCollapsed?: boolean;
     variant?: 'default' | 'alternative';
-    onToggle?: (openItems: string[]) => void;
+    openItems?: string[];
+    toggleItem?: (id: string) => void;
 };
 
 const Accordion: React.FC<AccordionProps> = ({
-                                                 items,
-                                                 allowMultipleOpen = false,
-                                                 initiallyCollapsed = {},
-                                                 variant = 'default',
-                                                 onToggle,
-                                             }) => {
-    const [openItems, setOpenItems] = useState<string[]>([]);
+    items,
+    allowMultipleOpen = false,
+    initiallyCollapsed = true,
+    variant = 'default',
+    openItems: externalOpenItems,
+    toggleItem: externalToggleItem,
+}) => {
+    const [internalOpenItems, setInternalOpenItems] = useState<string[]>(
+        initiallyCollapsed ? [] : items.map((item) => item.id)
+    );
 
-    useEffect(() => {
-        // Initialize openItems based on the initiallyCollapsed map
-        const openItemIds = items
-            .filter((item) => !initiallyCollapsed[item.id]) // Items that are not collapsed
-            .map((item) => item.id);
-
-        setOpenItems(openItemIds);
-    }, [initiallyCollapsed, items]);
-
-    const toggleItem = (id: string) => {
-        setOpenItems((prev) => {
-            const newOpenItems = prev.includes(id)
-                ? prev.filter((itemId) => itemId !== id)
-                : allowMultipleOpen
-                    ? [...prev, id]
-                    : [id];
-            if (onToggle) {
-                onToggle(newOpenItems);
+    const openItems = externalOpenItems !== undefined ? externalOpenItems : internalOpenItems;
+    const toggleItem = externalToggleItem !== undefined ? externalToggleItem : (id: string) => {
+        setInternalOpenItems((prev) => {
+            if (prev.includes(id)) {
+                return prev.filter((itemId) => itemId !== id);
+            } else {
+                return allowMultipleOpen ? [...prev, id] : [id];
             }
-            return newOpenItems;
         });
     };
+
+    useEffect(() => {
+        if (initiallyCollapsed) {
+            setInternalOpenItems([]);
+        }
+    }, [initiallyCollapsed]);
 
     return (
         <AccordionContainer variant={variant} className="cus-acc-ctn">
             {items.map(({ id, title, content }, index) => {
                 const isOpen = openItems.includes(id);
-                const isFirst = index === 0; // Determine if the current item is the first
+                const isFirst = index === 0;
                 return (
                     <AccordionItem
                         key={id}
@@ -71,10 +69,9 @@ const Accordion: React.FC<AccordionProps> = ({
                             onClick={() => toggleItem(id)}
                             aria-expanded={isOpen}
                             variant={variant}
-                            isFirst={isFirst} // Pass isFirst to styled component
+                            isFirst={isFirst}
                             isOpen={isOpen}
                         >
-                            {/* Conditional Symbol Rendering */}
                             <Symbol isOpen={isOpen} variant={variant}>
                                 <img
                                     src={
@@ -110,6 +107,7 @@ const Accordion: React.FC<AccordionProps> = ({
 export default Accordion;
 
 // == Styled components == //
+
 const AccordionContainer = styled.div<{ variant: string }>`
     display: flex;
     flex-direction: column;

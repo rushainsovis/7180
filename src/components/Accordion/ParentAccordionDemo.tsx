@@ -1,30 +1,43 @@
+import { useState } from 'react';
 import Accordion from './Accordion';
 import InnerAccordionDemo from './InnerAccordionDemo';
-import {useState} from "react";
 
 const ParentAccordionDemo = () => {
 
-    const [innerAccordionState, setInnerAccordionState] = useState({
-        inner1: false,
-        inner2: false,
-    });
+    const [outerOpenItems, setOuterOpenItems] = useState<string[]>([]);
+    const [innerOpenItems, setInnerOpenItems] = useState<string[]>([]);
 
-    const handleInnerToggle = (updatedState: { inner1: boolean; inner2: boolean }) => {
-        console.log(updatedState)
-        setInnerAccordionState(updatedState);
+    const toggleOuterItem = (id: string) => {
+        setOuterOpenItems((prev) => {
+            if (prev.includes(id)) {
+                return prev.filter((itemId) => itemId !== id);
+            } else {
+                return [...prev, id];
+            }
+        });
+    };
+
+    const toggleInnerItem = (id: string) => {
+        setInnerOpenItems((prev) => {
+            if (prev.includes(id)) {
+                return prev.filter((itemId) => itemId !== id);
+            } else {
+                return [...prev, id];
+            }
+        });
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '50px auto', fontFamily: 'Arial' }}>
+        <div style={{maxWidth: '600px', margin: '50px auto', fontFamily: 'Arial'}}>
             <Accordion
                 items={[
                     {
                         id: 'outer1',
                         title: 'Outer Accordion 1',
                         content: <InnerAccordionDemo
-                                    onInnerToggle={handleInnerToggle}
-                                    initiallyCollapsed={innerAccordionState}
-                                />,
+                            openItems={innerOpenItems}
+                            toggleItem={toggleInnerItem}
+                        />,
                     },
                     {
                         id: 'outer2',
@@ -34,10 +47,9 @@ const ParentAccordionDemo = () => {
                 ]}
                 allowMultipleOpen={true}
                 variant="alternative"
-                initiallyCollapsed={{
-                    outer1: false,
-                    outer2: false,
-                }}
+                initiallyCollapsed={false}
+                openItems={outerOpenItems}
+                toggleItem={toggleOuterItem}
             />
         </div>
     );
