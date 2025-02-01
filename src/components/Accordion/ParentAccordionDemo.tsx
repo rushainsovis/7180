@@ -4,8 +4,9 @@ import InnerAccordionDemo from './InnerAccordionDemo';
 
 const ParentAccordionDemo = () => {
 
-    const [outerOpenItems, setOuterOpenItems] = useState<string[]>([]);
-    const [innerOpenItems, setInnerOpenItems] = useState<string[]>([]);
+    const [outerOpenItems, setOuterOpenItems] = useState<string[]>(['outer1', 'outer2']);
+
+    const [innerOpenItems, setInnerOpenItems] = useState<string[]>(['inner1', 'inner2']);
 
     const toggleOuterItem = (id: string) => {
         setOuterOpenItems((prev) => {

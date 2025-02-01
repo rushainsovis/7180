@@ -26,7 +26,7 @@ type AccordionProps = {
 const Accordion: React.FC<AccordionProps> = ({
     items,
     allowMultipleOpen = false,
-    initiallyCollapsed = true,
+    initiallyCollapsed = false,
     variant = 'default',
     openItems: externalOpenItems,
     toggleItem: externalToggleItem,
